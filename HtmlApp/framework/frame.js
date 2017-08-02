@@ -53,6 +53,7 @@ var $httpRequestHandler = $httpHandleWare.httpReqHandler;
 
 // console.log(httpHandler);
 
+
 let httpServer = http.createServer((req, res) => {
 	// 获取url中的路径
 	let urlObj = $httpHandleWare.urlHandle.getReqUrlObj(req);

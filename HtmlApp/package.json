@@ -1,0 +1,21 @@
+{
+  "name": "htmlapp",
+  "version": "1.0.0",
+  "description": "myframework, app",
+  "main": "framework/frame.js",
+  "scripts": {
+    "test": "npm install",
+    "start": "node framework/frame.js"
+  },
+  "keywords": [
+    "htmlApp"
+  ],
+  "author": "Aaron-T",
+  "license": "ISC",
+  "dependencies": {
+    "iconv-lite": "latest",
+    "cheerio": "latest",
+    "MD5": "~1.2.0",
+    "htmlparser2": "~3.9.2"
+  }
+}
