@@ -1,15 +1,17 @@
-var MongoHandle = require("./dataBaseWare/mongodbHandleWare")
-
-var dbHandler = new MongoHandle("mongodb://localhost:27017/htmlApp");
+// var MongoHandle = require("./dataBaseWare/mongodbHandleWare")
+//
+// var dbHandler = new MongoHandle("mongodb://localhost:27017/htmlApp");
 // 后面这段存在先后顺序问题，待解决
-// const $Services = require("./framework/Services");
-//
-// console.log($Services)
-//
-// var dbHandler = $Services.getDataBase();
+
 
 const NovelHandler = require("./app/novelApp");
 let cheerio = require("cheerio")
+let iconv = require("iconv-lite")
+const $Services = require("./framework/Services");
+const $getService = require("./framework/common").$getService;
+
+var dbHandler = $Services.getDataBase();
+var templateRender = $getService("responseRender");
 
 function sendResponse(res, stateCode, type, content) {
   res.writeHead(stateCode, {
@@ -108,6 +110,7 @@ var novelsBusiness = {
 
   show: function(req, res) {
     let novelName = req.params["name"];
+    // console.log(dbHandler)
     let queryNovel = new Promise((resolve, reject) => {
       dbHandler.query("novel", {
         name: novelName
@@ -166,7 +169,8 @@ var novelsBusiness = {
           const $ = cheerio.load(chunk);
           res.write($("#content").html());
           // console.log("content: ", $("#content").html())
-          res.write("<p>下一页</p>")
+          // res.write(iconv.decode(iconv.encode("<p>下一页</p>", "GBK").toString(), "GBK")) ----中文乱码
+          res.write("<p><a href='novelPre'> pre </a><a href='dir'> dir </a><a href='novelNext'> next </a></p>");
           res.end();
         })
       });
@@ -180,12 +184,26 @@ var novelsBusiness = {
   },
 
   next: function(req, res) {
-
+    res.writeHead(200, {
+      "Content-Type": "text/html"
+    });
+    res.write("<p> next </p>")
+    res.end();
   },
 
   pre: function(req, res) {
-
+    res.writeHead(200, {
+      "Content-Type": "text/html"
+    });
+    res.write("<p> pre </p>")
+    res.end();
   }
+}
+
+function testJade(req, res) {
+  templateRender.render(res, "jade/renderTest.jade", {
+    name: "Aaron"
+  });
 }
 
 var htmlApp = {
@@ -206,6 +224,15 @@ var htmlApp = {
     }, {
       key: "queryNovel",
       handler: novelsBusiness.show
+    }, {
+      key: "novelNext",
+      handler: novelsBusiness.next
+    }, {
+      key: "novelPre",
+      handler: novelsBusiness.pre
+    }, {
+      key: "testJade",
+      handler: testJade
     }
   ],
 

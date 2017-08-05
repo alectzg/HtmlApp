@@ -16,6 +16,7 @@
     "iconv-lite": "latest",
     "cheerio": "latest",
     "MD5": "~1.2.0",
-    "htmlparser2": "~3.9.2"
+    "htmlparser2": "~3.9.2",
+    "jade": "~1.11.0"
   }
 }

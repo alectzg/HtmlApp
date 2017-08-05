@@ -37,5 +37,13 @@ animation(ball1, 300, 10)
 function test() {
   return new Promise((resolve, reject) => {
     var num = Math.ceil(Math.random() * 10);
+    if (num < 5) reject();
+    else resolve();
   });
 }
+
+test.then(() => {
+  console.log("success");
+}, () => {
+  console.log("random fail!!")
+});

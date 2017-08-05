@@ -1,6 +1,11 @@
-var MongoHandle = require("./dataBaseWare/mongodbHandleWare")
+// var MongoHandle = require("./dataBaseWare/mongodbHandleWare")
+//
+// var mongHandler = new MongoHandle('mongodb://localhost:27017/htmlApp');
+const dataBaseManager = require("./dataBaseWare/databaseManager").databaseManager;
+let customApp = require("./App").app
 
-var mongHandler = new MongoHandle('mongodb://localhost:27017/htmlApp');
+var dbinstance = dataBaseManager.getDatabaseInstance(customApp);
+let mongHandler = dbinstance["mongodb"]
 
 // mongHandler.insert("site", {
 // 	name: "	-旅人~第1章~ ",
@@ -13,6 +18,7 @@ var mongHandler = new MongoHandle('mongodb://localhost:27017/htmlApp');
 // 		console.log(result);
 // 	}
 // });
+console.log(mongHandler.__proto__)
 
 mongHandler.query("test", null, (err, result) => {
 	console.log(result.length)
@@ -61,4 +67,4 @@ test.then((ItemSet) => {
 	console.log(item)
 });
 
-mongodb.update()
+// mongodb.update()

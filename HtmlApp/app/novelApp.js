@@ -68,11 +68,8 @@ NovelHandler.prototype = {
     if (!!urlObj.query) {
       this.siteUrl = urlLink;
     } else {
-      this.siteUrl = urlObj.href.replace(/^(.*)\/.*?$/, "$1")+"/";
+      this.siteUrl = urlObj.href.replace(/^(.*)\/.*?$/, "$1") + "/";
     }
-  },
-  render: function(res, ctx){
-
   }
 }
 
@@ -80,7 +77,8 @@ module.exports = NovelHandler
 
 __main__ = false
 
-if (__main__){
+if (__main__) {
+  let novelRender = require("./AppTemplate").templateRender;
   let novelhandler = new NovelHandler("我的美女总裁老婆");
 
   novelhandler = new Proxy(novelhandler, {
@@ -100,7 +98,7 @@ if (__main__){
     for (let i = 0, size = links.length; i < size; i++) {
       item["text"] = $(links[i]).text();
       item["href"] = $(links[i]).attr("href");
-      console.log($(links[i]).text(), $(links[i]).attr("href"))
+      console.log($(links[i]).html(), $(links[i]).attr("href"))
       if ("javascript:;" != item.href) {
         if (item.text == "上一章") {
           novelhandler.prePage = item.href;
@@ -141,9 +139,11 @@ if (__main__){
     // // console.log("title: ", escaper.unescape($(".bookname").text()));
     //  console.log("title: ", $("div .bookname h1").text());
     // chapter1.write("<br>");
-    chapter1.write($("#content").html());
+    chapter1.write($("#content").html().toString("utf8"));
     // console.log("content: ", $("#content").html())
 
     chapter1.close();
+
+    novelRender.renderNovel("", $("#content").html(), null);
   }).then(() => novelhandler.showPageInfo());
 }

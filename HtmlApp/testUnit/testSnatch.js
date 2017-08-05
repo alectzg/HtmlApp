@@ -3,6 +3,7 @@ var cheerio = require("cheerio");
 var fs = require("fs");
 // const escaper = require("true-html-escape");
 var iconv = require('iconv-lite')
+const encoding = require("encoding")
 
 function saveToHtml(chunk) {
   let chapter1 = fs.createWriteStream("testNovelChapter1.html");
@@ -12,7 +13,7 @@ function saveToHtml(chunk) {
   //  console.log("title: ", $("div .bookname h1").text());
   // chapter1.write("<br>");
   chapter1.write($("#content").html());
-  console.log("content: ", $("#content").html())
+  console.log("content: ", encoding.convert($("#content").html(), "utf8", "gbk").toString());
 
   chapter1.close();
 }
@@ -64,6 +65,7 @@ function testSnatch(url, option) {
   })
 
 }
+
 testSnatch("http://www.cangqionglongqi.com/wodemeinvzongcailaopo/1573963.html", {}).then(saveToHtml, () => {
   console.log("error")
 });

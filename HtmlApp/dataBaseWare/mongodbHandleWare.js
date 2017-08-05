@@ -121,100 +121,201 @@ class MongoModel {
     }
 }
 */
+let __DEFINE_CLASS__ = true
+if (__DEFINE_CLASS__) {
+  class MongoModel {
+    constructor(conn_url) {
+      this.conn_url = conn_url;
+      // console.log("constructor >> conn_url", conn_url);
+    }
 
-function MongoModel(conn_url) {
-  this.conn_url = conn_url;
-};
+    connect(callback) {
+      MongoClient.connect(this.conn_url, function() {
+        callback();
+        db.close();
+      });
+    }
 
-MongoModel.prototype = {
-  connect: function(callback) {
-    MongoClient.connect(this.conn_url, function() {
-      callback();
-      db.close();
-    });
-  },
-
-
-  insert: function(colname, document, callback) {
-    MongoClient.connect(this.conn_url, (err, db) => {
-      if (err) {
-        console.log("connect database fail!!\r\n");
-      } else {
-        let collection = db.collection(colname);
-        collection.insert(document, function(err, result) {
-          if (err) {
-            console.log("Err: ", err);
-          }
-          callback(err, result);
-          db.close();
-        });
-      }
-    });
-  },
-
-  update: function(colname, query, updateVal, callback) {
-    MongoClient.connect(this.conn_url, (err, db) => {
-      if (err) {
-        console.log("connect database fail!!\r\n");
-      } else {
-        let collection = db.collection(colname);
-        collection.update(query, {
-          $set: updateVal
-        }, function(err, result) {
-          if (err) {
-            console.log("Err: ", err);
-          }
-          callback(err, result);
-          db.close();
-        });
-      }
-    });
-  },
-
-  query: function(colname, query, callback) {
-    MongoClient.connect(this.conn_url, (err, db) => {
-      if (err) {
-        console.log("connect database fail!!\r\n");
-        callback(err, null);
-      } else {
-        query = query || {};
-        let collection = db.collection(colname);
-        let queryResult = collection.find(query).toArray((err, result) => {
-          if (err) {
-            console.log("Err: ", err);
-            callback(err, null);
-          } else {
+    insert(colname, document, callback) {
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          console.log("connect database fail!!\r\n");
+        } else {
+          let collection = db.collection(colname);
+          collection.insert(document, function(err, result) {
+            if (err) {
+              console.log("Err: ", err);
+            }
             callback(err, result);
-          }
-        });
+            db.close();
+          });
+        }
+      });
+    }
 
-        db.close();
-      }
-    });
+    update(colname, query, updateVal, callback) {
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          console.log("connect database fail!!\r\n");
+        } else {
+          let collection = db.collection(colname);
+          collection.update(query, {
+            $set: updateVal
+          }, function(err, result) {
+            if (err) {
+              console.log("Err: ", err);
+            }
+            callback(err, result);
+            db.close();
+          });
+        }
+      });
+    }
 
-  },
+    query(colname, query, callback) {
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          console.log("connect database fail!!\r\n");
+          callback(err, null);
+        } else {
+          query = query || {};
+          let collection = db.collection(colname);
+          let queryResult = collection.find(query).toArray((err, result) => {
+            if (err) {
+              console.log("Err: ", err);
+              callback(err, null);
+            } else {
+              callback(err, result);
+            }
+          });
 
-  delete: function(colname, query, callback) {
-    MongoClient.connect(this.conn_url, (err, db) => {
-      if (err) {
-        console.log("connect database fail!!\r\n");
-        callback(err, null);
-      } else {
-        query = query || {};
-        let collection = db.collection(colname);
-        let queryResult = collection.remove(query, (err, data) => {
-          if (err) {
-            console.log("Err: ", err);
-            callback(err, null);
-          } else {
-            callback(err, data);
-          }
-        });
+          db.close();
+        }
+      });
+    }
 
-        db.close();
-      }
-    });
+    delete(colname, query, callback) {
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          console.log("connect database fail!!\r\n");
+          callback(err, null);
+        } else {
+          query = query || {};
+          let collection = db.collection(colname);
+          let queryResult = collection.remove(query, (err, data) => {
+            if (err) {
+              console.log("Err: ", err);
+              callback(err, null);
+            } else {
+              callback(err, data);
+            }
+          });
+          db.close();
+        }
+      });
+    }
   }
-};
 
-module.exports = MongoModel
+  // console.log("class >> ");
+  // console.log(MongoModel)
+  module.exports = MongoModel
+
+} else {
+  function MongoModel(conn_url) {
+    this.conn_url = conn_url;
+    // console.log("constructor >> conn_url", conn_url);
+  };
+
+  MongoModel.prototype = {
+    connect: function(callback) {
+      MongoClient.connect(this.conn_url, function() {
+        callback();
+        db.close();
+      });
+    },
+
+
+    insert: function(colname, document, callback) {
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          console.log("connect database fail!!\r\n");
+        } else {
+          let collection = db.collection(colname);
+          collection.insert(document, function(err, result) {
+            if (err) {
+              console.log("Err: ", err);
+            }
+            callback(err, result);
+            db.close();
+          });
+        }
+      });
+    },
+
+    update: function(colname, query, updateVal, callback) {
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          console.log("connect database fail!!\r\n");
+        } else {
+          let collection = db.collection(colname);
+          collection.update(query, {
+            $set: updateVal
+          }, function(err, result) {
+            if (err) {
+              console.log("Err: ", err);
+            }
+            callback(err, result);
+            db.close();
+          });
+        }
+      });
+    },
+
+    query: function(colname, query, callback) {
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          console.log("connect database fail!!\r\n");
+          callback(err, null);
+        } else {
+          query = query || {};
+          let collection = db.collection(colname);
+          let queryResult = collection.find(query).toArray((err, result) => {
+            if (err) {
+              console.log("Err: ", err);
+              callback(err, null);
+            } else {
+              callback(err, result);
+            }
+          });
+
+          db.close();
+        }
+      });
+
+    },
+
+    delete: function(colname, query, callback) {
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          console.log("connect database fail!!\r\n");
+          callback(err, null);
+        } else {
+          query = query || {};
+          let collection = db.collection(colname);
+          let queryResult = collection.remove(query, (err, data) => {
+            if (err) {
+              console.log("Err: ", err);
+              callback(err, null);
+            } else {
+              callback(err, data);
+            }
+          });
+
+          db.close();
+        }
+      });
+    }
+  };
+  console.log(MongoModel)
+  module.exports = MongoModel
+}
