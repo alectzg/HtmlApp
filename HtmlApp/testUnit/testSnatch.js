@@ -3,14 +3,14 @@ var cheerio = require("cheerio");
 var fs = require("fs");
 // const escaper = require("true-html-escape");
 var iconv = require('iconv-lite')
-const encoding = require("encoding")
 
 function saveToHtml(chunk) {
   let chapter1 = fs.createWriteStream("testNovelChapter1.html");
   const $ = cheerio.load(chunk);
   // chapter1.write($("div .bookname h1").text());
   // // console.log("title: ", escaper.unescape($(".bookname").text()));
-  //  console.log("title: ", $("div .bookname h1").text());
+  console.log("title:", $("title").text())
+  console.log("chapter-title: ", $("div .bookname h1").text());
   // chapter1.write("<br>");
   chapter1.write($("#content").html());
   console.log("content: ", encoding.convert($("#content").html(), "utf8", "gbk").toString());

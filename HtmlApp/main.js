@@ -167,11 +167,21 @@ var novelsBusiness = {
             "Content-Type": "text/html"
           });
           const $ = cheerio.load(chunk);
+          /*
           res.write($("#content").html());
           // console.log("content: ", $("#content").html())
           // res.write(iconv.decode(iconv.encode("<p>下一页</p>", "GBK").toString(), "GBK")) ----中文乱码
           res.write("<p><a href='novelPre'> pre </a><a href='dir'> dir </a><a href='novelNext'> next </a></p>");
           res.end();
+          */
+          let ctx = {
+            title: $("title").text(),
+            novel_title: $("div .bookname h1").text(),
+            novel_content: $("#content").html()
+          };
+
+          templateRender.render(res, "jade/NovelApp.jade", ctx);
+
         })
       });
     }, (err) => {
@@ -206,35 +216,50 @@ function testJade(req, res) {
   });
 }
 
-var htmlApp = {
+function jadeBootstrap(req, res) {
+  /*
+  templateRender.render(res, "jade/NovelApp.jade", {
+    title: "我的美女总裁老婆",
+    novel_title: "第一章 &nbsp; 卖羊肉串的 ",
+    novel_content: " 第一章节内容 "
+  });
+  */
+  templateRender.render(res, "jade/NovelApp.jade", {
+    title: "我的美女总裁老婆",
+    novel_title: "Hello , sell some meat",
+    novel_content: "I'm a good man!"
+  });
+}
 
+var htmlApp = {
   urls: [{
-      key: "index",
-      handler: busiHandler.index
-    }, {
-      key: "post",
-      handler: busiHandler.post
-    }, {
-      key: "canval_SaveScript",
-      handler: canvasBusiness.saveScript
-    },
-    {
-      key: "saveNovelLink",
-      handler: novelsBusiness.saveHotLink
-    }, {
-      key: "queryNovel",
-      handler: novelsBusiness.show
-    }, {
-      key: "novelNext",
-      handler: novelsBusiness.next
-    }, {
-      key: "novelPre",
-      handler: novelsBusiness.pre
-    }, {
-      key: "testJade",
-      handler: testJade
-    }
-  ],
+    key: "index",
+    handler: busiHandler.index
+  }, {
+    key: "post",
+    handler: busiHandler.post
+  }, {
+    key: "canval_SaveScript",
+    handler: canvasBusiness.saveScript
+  }, {
+    key: "saveNovelLink",
+    handler: novelsBusiness.saveHotLink
+  }, {
+    key: "queryNovel",
+    handler: novelsBusiness.show
+  }, {
+    key: "novelNext",
+    handler: novelsBusiness.next
+  }, {
+    key: "novelPre",
+    handler: novelsBusiness.pre
+  }, {
+    key: "testJade",
+    handler: testJade
+  }, {
+    key: "jadeBootstrap",
+    handler: jadeBootstrap
+  }],
 
   index: "index"
 }
