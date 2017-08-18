@@ -44,6 +44,10 @@ NovelHandler.prototype = {
   next: function(option, callback) {
     let rule = this.rule;
     let url = this.nextPage;
+    console.log(this.siteUrl)
+    url = this.siteUrl + "/" + this.nextPage;
+    url = url.replace(/\/+/g, "/");
+    console.log("url: " + url);
     this.display(url, option, rule, callback);
   },
 
@@ -70,14 +74,23 @@ NovelHandler.prototype = {
     } else {
       this.siteUrl = urlObj.href.replace(/^(.*)\/.*?$/, "$1") + "/";
     }
+  },
+
+  fetchArticDir: function(url, option, callback) {
+    return crawler.snatchHtmlByUrl(url, option).then((chunk) => {
+      return new Promise((resolve, reject) => {
+        let retVal = callback(chunk);
+        resolve(retVal);
+      });
+    });
   }
+  // end fetchArticDir
 }
 
 module.exports = NovelHandler
 
-__main__ = false
-
-if (__main__) {
+let __main__ = "debug"
+if (__main__ == "display") {
   let novelRender = require("./AppTemplate").templateRender;
   let novelhandler = new NovelHandler("我的美女总裁老婆");
 
@@ -146,4 +159,22 @@ if (__main__) {
 
     novelRender.renderNovel("", $("#content").html(), null);
   }).then(() => novelhandler.showPageInfo());
+} else if (__main__ == "dir") {
+  const fs = require("fs")
+  let novelHandler = new NovelHandler("我的美女总裁老婆");
+  let siteUrl = "http://www.cangqionglongqi.com/wodemeinvzongcailaopo/";
+  novelHandler.fetchArticDir(siteUrl, {}, (res) => {
+    const $ = cheerio.load(res);
+    console.log("novelTitle: ", $("#info h1").text());
+    // console.log($("#list dl").html());
+    let dirChatper = fs.createWriteStream("testDir.html");
+
+    dirChatper.write($("#list dl").html());
+    dirChatper.close();
+    // console.log("length: ", $("#list dl dd").length)
+    let ddLinks = $("#list dl dd");
+    for (let i = 0, size = ddLinks.length; i < size; i++) {
+      console.log("title: ", $("a", ddLinks[i]).text(), " ", $("a", ddLinks[i]).attr("href"))
+    }
+  }).then(() => console.log("completed~~~~"));
 }

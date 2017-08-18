@@ -130,9 +130,15 @@ if (__DEFINE_CLASS__) {
     }
 
     connect(callback) {
-      MongoClient.connect(this.conn_url, function() {
-        callback();
-        db.close();
+      console.log("[ConnectURL]", this.conn_url);
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          callback(err, null);
+          console.log("connect database fail!!\r\n")
+        } else {
+          callback(null, db);
+          db.close();
+        }
       });
     }
 
@@ -211,6 +217,75 @@ if (__DEFINE_CLASS__) {
             }
           });
           db.close();
+        }
+      });
+    }
+
+    batchInsert(colname, dataSet, callback) {
+      // 迭代器封装函数
+      function __externIterator(arraySet) {
+        if (!!arraySet[Symbol.iterator]) {
+          console.log("object was iterator!")
+          return arraySet;
+        } else {
+          let xObj = {};
+          xObj[Symbol.iterator] = function() {
+            let index = 0;
+            return {
+              next() {
+                return {
+                  value: obj[index++],
+                  done: (index > obj.length)
+                };
+              }
+            };
+          }
+          return Object.assign(obj, xObj);
+        }
+      }
+
+      MongoClient.connect(this.conn_url, (err, db) => {
+        if (err) {
+          console.log("connect database fail!!\r\n");
+          callback(err, null);
+        } else {
+          let collection = db.collection(colname);
+          // 将数据集转换成迭代器
+          let _dataSet = __externIterator(dataSet);
+          let _recordCount = 0;
+
+          // 单行插入成功后，迭代进行下一行插入
+          function __insertRow(coll, iterator) {
+            let item = iterator.next();
+            // 批量插入完成后，需关闭数据库连接
+            if (item.done) {
+              db.close();
+              callback(null, _recordCount);
+              return;
+            }
+            _recordCount++;
+            coll.insert(item.value, (err, result) => {
+              if (err) {
+                console.log("insert data fail!");
+                db.close();
+                callback(err, null);
+              } else {
+                // console.log(">>", item.done);
+                // console.log(item.value)
+                // 集合己遍历完成，则关闭连接
+                if (item.done) {
+                  db.close();
+                  callback(null, "insert success~~");
+                } else {
+                  // 为防止回调导致内存暴仓，这里用一个setTimeout
+                  setTimeout(() => __insertRow(coll, iterator), 0);
+                }
+              }
+            })
+          }
+          let _s = _dataSet[Symbol.iterator]();
+          // console.log(s);
+          __insertRow(collection, _s);
         }
       });
     }

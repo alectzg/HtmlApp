@@ -6,11 +6,11 @@ var service = {
       get: function(target, name) {
         if (!target[name]) {
           let lazyObj = null;
-          console.log("trigger reload >> ", name)
+          // console.log("trigger reload >> ", name)
           lazyObj = service["db"][dbName];
           // console.log(service.db)
           // console.log("dbname: ", dbName)
-          console.log(lazyObj);
+          // console.log(lazyObj);
           // target = Object.assign(target, lazyObj);
           target[name] = lazyObj[name];
           //target.__proto__ = Object.assign(target.__proto__, lazyObj.__proto__);

@@ -21,6 +21,17 @@ function sendResponse(res, stateCode, type, content) {
   res.end();
 }
 
+function getTimeStr(date) {
+  let str = "" + date.getYear();
+  str += ("0" + date.getMonth()).replace(/^0+/, "0");
+  str += ("0" + date.getDate()).replace(/^0+/, "0");
+  str += ("0" + date.getHours()).replace(/^0+/, "0");
+  str += ("0" + date.getMinutes()).replace(/^0+/, "0");
+  str += ("0" + date.getSeconds()).replace(/^0+/, "0");
+  str += ("0" + date.getMilliseconds()).replace(/^0+/, "0");
+  return str;
+}
+
 var busiHandler = {
   index: function(req, res) {
     res.writeHead(200, {
@@ -64,9 +75,19 @@ var novelsBusiness = {
   __init: function() {
     this.novelHandler = new novelHandler("我的美女总裁老婆");
   },
+
   queryNovelDirs: function(req, res, callback) {
-    dbHandler.query("novel", {}, (err, result) => {
-      callback(req, res, err, result);
+    let novelId = req.params["id"];
+    //11707013021037013051
+    let queryCond = {
+      novel_id: novelId
+    };
+
+    dbHandler.query("novel_chapters", queryCond, (err, result) => {
+      let chapterList = [];
+      for (let i = 0, size = result.length; i < size; i++) {
+        chapterList.push({})
+      }
     });
   },
 
@@ -179,9 +200,7 @@ var novelsBusiness = {
             novel_title: $("div .bookname h1").text(),
             novel_content: $("#content").html()
           };
-
           templateRender.render(res, "jade/NovelApp.jade", ctx);
-
         })
       });
     }, (err) => {
@@ -194,25 +213,72 @@ var novelsBusiness = {
   },
 
   next: function(req, res) {
-    res.writeHead(200, {
-      "Content-Type": "text/html"
-    });
-    res.write("<p> next </p>")
-    res.end();
+    // res.writeHead(200, {
+    //   "Content-Type": "text/html"
+    // });
+    // res.write(novelHandler.nextPage)
+    // res.write("<p> next </p>")
+    // res.end();
+    novelsBusiness.novelHandler.next({}, null)
   },
 
   pre: function(req, res) {
     res.writeHead(200, {
       "Content-Type": "text/html"
     });
+    res.write(novelHandler.pre)
     res.write("<p> pre </p>")
     res.end();
+  },
+
+  saveDirectory: function(req, res) {
+    let dirUrl = req.params["siteLink"];
+    let novelName = req.params["name"];
+    console.log("prepare fetchArticDir ######\r\n");
+    let novelHandler = null;
+    if (!novelsBusiness.novelHandler) {
+      novelsBusiness.novelHandler = new NovelHandler(novelName);
+    }
+    novelHandler = novelsBusiness.novelHandler;
+    novelHandler.fetchArticDir(dirUrl, {}, (chunk) => {
+      let $ = cheerio.load(chunk);
+      // console.log("novelTitle: ", $("#info h1").text());
+      let links = $("#list dl dd");
+      let id = getTimeStr(new Date());
+      let dataSet = [];
+      for (let i = 0, size = links.length, item = null; i < size; i++) {
+        item = $("a", links[i]);
+        dataSet.push({
+          novel_id: id,
+          chapterid: id + "_" + i,
+          chapterText: item.text(),
+          href: dirUrl + "/" + item.attr("href")
+        });
+      }
+      // console.log("length: ", dataSet.length);
+      dbHandler.batchInsert("novel_chapters", dataSet, (err, records) => {
+        if (err) {
+          console.log("insert fail!");
+        } else {
+          console.log(`insert records ${records}`)
+        }
+      });
+
+      return id;
+    }).then((retVal) => {
+      console.log("retVal ~~~~~~~\r\n");
+      templateRender.render(res, "jade/novelIndex.jade", {
+        novel_name: novelName,
+        novel_id: retVal
+      });
+    });
   }
 }
 
 function testJade(req, res) {
-  templateRender.render(res, "jade/renderTest.jade", {
-    name: "Aaron"
+  templateRender.render(res, "jade/novelIndex.jade", {
+    novel_name: "我的美女总裁老婆",
+    novel_id: "123932"
   });
 }
 
@@ -229,6 +295,10 @@ function jadeBootstrap(req, res) {
     novel_title: "Hello , sell some meat",
     novel_content: "I'm a good man!"
   });
+}
+
+function home(req, res) {
+  templateRender.render(res, "jade/index.jade", {});
 }
 
 var htmlApp = {
@@ -254,14 +324,20 @@ var htmlApp = {
     key: "novelPre",
     handler: novelsBusiness.pre
   }, {
+    key: "saveDirectory",
+    handler: novelsBusiness.saveDirectory
+  }, {
     key: "testJade",
     handler: testJade
   }, {
     key: "jadeBootstrap",
     handler: jadeBootstrap
+  }, {
+    key: "home",
+    handler: home
   }],
 
-  index: "index"
+  index: "home"
 }
 
 module.exports = htmlApp;
