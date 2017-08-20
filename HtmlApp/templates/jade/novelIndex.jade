@@ -9,5 +9,19 @@ html
   body
     .container
       p.
-      !{novel_name}<br/>
-      !{novel_id}
+        !{novel_name}<br/>
+      hr
+      table.dir-table
+        - var dataSet = dataArray
+        - for (var i = 0, size = dataSet.length; i < size; i += 4){
+          <tr>
+          - for(var j = 0; j < 4; j++){
+            - item = dataSet[i+j]
+              <td>
+              - if(item){
+                <a href='!{item.href}'>!{item.text}</a>
+              - }
+              </td>
+          - }
+          </tr>
+        - }

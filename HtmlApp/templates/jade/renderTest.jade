@@ -21,3 +21,10 @@ html(lang=en)
 					| alkdfjdkf
 					| adkffgkd
 					| adh
+				p
+					- let iterator = data
+					- console.log(iterator)
+					ul
+						- for(let i = 0, size = iterator.length; i<size; i++){
+							li #{iterator[i]}
+						- }

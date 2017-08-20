@@ -76,7 +76,7 @@ var novelsBusiness = {
     this.novelHandler = new novelHandler("我的美女总裁老婆");
   },
 
-  queryNovelDirs: function(req, res, callback) {
+  queryNovelDirs: function(req, res) {
     let novelId = req.params["id"];
     //11707013021037013051
     let queryCond = {
@@ -84,10 +84,21 @@ var novelsBusiness = {
     };
 
     dbHandler.query("novel_chapters", queryCond, (err, result) => {
+      if (err) {
+        sendResponse(res, 404, "text/html", "<p> resource was remove </p>")
+        return;
+      }
       let chapterList = [];
       for (let i = 0, size = result.length; i < size; i++) {
-        chapterList.push({})
+        chapterList.push({
+          href: result[i].href,
+          text: result[i].chapterText
+        })
       }
+      templateRender.render(res, "jade/novelIndex.jade", {
+        novel_name: "我的美女总裁老婆",
+        dataArray: chapterList
+      });
     });
   },
 
@@ -278,7 +289,17 @@ var novelsBusiness = {
 function testJade(req, res) {
   templateRender.render(res, "jade/novelIndex.jade", {
     novel_name: "我的美女总裁老婆",
-    novel_id: "123932"
+    novel_id: "123932",
+    dataArray: [{
+      href: "http://www.baidu.com",
+      text: "baidu"
+    }, {
+      href: "http://www.google.com",
+      text: "Google"
+    }, {
+      href: "http://www.yahoo.com",
+      text: "Yahoo"
+    }]
   });
 }
 
@@ -326,6 +347,9 @@ var htmlApp = {
   }, {
     key: "saveDirectory",
     handler: novelsBusiness.saveDirectory
+  }, {
+    key: "novelList",
+    handler: novelsBusiness.queryNovelDirs
   }, {
     key: "testJade",
     handler: testJade
